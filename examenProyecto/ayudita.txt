@@ -1,0 +1,13 @@
+bien, para hacer los endpoints incluyendo lo visual es
+
+Modificas el modelo
+
+haces el controlador
+
+le agregas las rutas
+
+haces que necesite de autorizacion para obtenerlos
+
+TODOS LOS NOMBRES EN CLIENT ARRANCAN CON MAYUSCULA PORQUE SINO NO TOMA LAS FUNCIOINES
+
+
