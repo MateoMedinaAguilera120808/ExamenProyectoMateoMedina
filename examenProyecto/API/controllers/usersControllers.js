@@ -2,6 +2,8 @@ const Users = require("../models/usersModels")
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const users = require("../models/usersModels");
+const { post } = require("../routes/usersRoutes");
 
 const secret = 'misecreto';
 
@@ -20,6 +22,23 @@ const secret = 'misecreto';
 "passwordLogin":"1234"
 }
 */
+
+const posteos = [
+    {
+        id: 1,
+        nombre: "comida"
+    },
+    {
+        id: 2,
+        nombre: "aviones"
+    },
+    {
+        id: 3,
+        nombre: "juegos"
+    }
+]
+
+
 
 
 
@@ -48,17 +67,19 @@ const registerUser = async (req, res) => {
             firstName,
             lastName,
             email,
-            password: passwordHasheada
+            password: passwordHasheada,
+            isDeleted: false
         })
 
-        res.status(201).json({ message: 'Usuario Registrado', 
+        res.status(201).json({
+            message: 'Usuario Registrado',
             user: {
                 id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email
             }
-         })
+        })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -83,18 +104,25 @@ const login = async (req, res) => {
             return res.status(404).json({ message: "Usuario no encontrado" });
         }
 
-        const compare = await bcrypt.compare(passwordLogin, usuarioEncontrado.password)
+        const estaBorrado = usuarioEncontrado.isDeleted;
 
-        if (!compare) {
-            return res.status(400).json({
-                message: "Contraseña Incorrecta"
-            });
+        if (estaBorrado == false) {
+            const compare = await bcrypt.compare(passwordLogin, usuarioEncontrado.password)
+
+            if (!compare) {
+                return res.status(400).json({
+                    message: "Contraseña Incorrecta"
+                });
+            }
+
+            const token = jwt.sign({ id: usuarioEncontrado.id, email: usuarioEncontrado.email }, secret, { expiresIn: '8h' })
+
+
+            res.json({ token })
+
+        } else {
+            res.status(400).json({ message: ' El usuario esta borrado, no se puede' })
         }
-
-        const token = jwt.sign({ id: usuarioEncontrado.id, email: usuarioEncontrado.email }, secret, { expiresIn: '8h' })
-
-
-        res.json({ token })
     } catch (error) {
         res.status(404).json({ error: error.message })
     }
@@ -105,6 +133,80 @@ const me = async (req, res) => {
     res.json({})
 }
 
+const borrarCuenta = async (req, res) => {
+
+    try {
+        const usuarioaBorrar = await Users.findOne({
+            where: {
+                id: req.user.id
+            }
+
+        })
+
+        if (!usuarioaBorrar) {
+            res.status(404).json({ message: ' No se ha encontrado el usuario' })
+            return
+        }
+
+        await Users.update(
+            { isDeleted: true },
+            { where: { id: usuarioaBorrar.id } }
+        );
+        res.status(200).json({ message: 'eliminacion exitosa' })
+
+
+
+    } catch (error) {
+        res.status(400).json('no se ha podido borrar la cuenta')
+    }
+
+
+
+}
+
+
+const darLike = async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log("#################################################");
+        
+        const idPosteo = 0;
+        if (!id) {
+            res.status(404).json({ message: ' no has enviado datos' })
+        }
+
+        for (var i = 0; i < posteos.length; i++) {
+            if (id == posteos[i]) {
+                idPosteo = id
+            }
+            console.log('aun no lo encontro')
+        }
+
+        const usuarioDelLike = await Users.findOne({
+            where: { id: req.user.id }
+        })
+
+        usuarioDelLike.push({
+            likedPosts: idPosteo
+        })
+
+        req.user = {
+            idPost: idPosteo
+        }
+
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({ message: 'ha ocurrido un error dandole like' })
+    }
+
+
+}
+
+
+
+
 
 
 
@@ -112,5 +214,7 @@ module.exports = {
     getUsers,
     registerUser,
     login,
-    me
+    me,
+    borrarCuenta,
+    darLike
 }

@@ -27,6 +27,14 @@ const users = sequelize.define('Users',{
         type: DataTypes.STRING,
         allowNull: false
     },
+    isDeleted:{
+        type: DataTypes.BOOLEAN,
+        allowNull:true,      
+    },
+    likedPosts:{
+        type: DataTypes.JSON,
+        allowNull: true,
+    }
     
 },{
     timestamps: false

@@ -5,7 +5,7 @@ const secret = "misecreto"
 
 const isAuth = async (req, res, next) => {
     const token = req.headers["authorization"]
-    
+
     console.log(token)
 
 
@@ -16,11 +16,18 @@ const isAuth = async (req, res, next) => {
         const user = await users.findByPk(decoded.id)
 
         if (!user) return res.status(404).json({ message: ' usuario no encontrado' })
-        
 
-        req.user = {
-            id: user.id,
-            email: user.email
+        const estaBorrado = user.isDeleted;
+
+
+        if (estaBorrado == false) {
+            req.user = {
+                id: user.id,
+                email: user.email
+            }
+        } else {
+            res.status(400).json({ message: ' El usuario no puede verificarse, esta borrado' })
+            return
         }
 
 

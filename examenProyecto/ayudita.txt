@@ -4,9 +4,17 @@ Modificas el modelo
 
 haces el controlador
 
+haces el middleware
+
 le agregas las rutas
 
-haces que necesite de autorizacion para obtenerlos
+haces que necesite de autorizacion de headers para obtenerlos
+
+en el client creas un nuevo componente
+
+espues lo importar a app
+
+y probas hasta que salga
 
 TODOS LOS NOMBRES EN CLIENT ARRANCAN CON MAYUSCULA PORQUE SINO NO TOMA LAS FUNCIOINES
 
