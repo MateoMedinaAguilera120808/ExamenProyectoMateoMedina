@@ -40,7 +40,7 @@ server.listen(PORT, async () => {
         await sequelize.authenticate();
         // Sincronización automática de modelos
         // { force: true } BORRA y recrea las tablas cada vez que inicia el servidor. Ideal para testing/desarrollo.
-        await sequelize.sync({ force: false });
+        await sequelize.sync({ force: true });
         console.log("Conexión exitosa a la Base de Datos");
         console.log(`El servidor está ON en el puerto ${PORT}`);
     } catch (error) {

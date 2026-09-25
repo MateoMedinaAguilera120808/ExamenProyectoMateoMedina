@@ -2,17 +2,20 @@ import Button from '@mui/material/Button';
 import { useState } from 'react';
 import axios from 'axios';
 
-
 function Likear() {
-
     const [idPosteo, setPosteo] = useState("")
-
     const postLike = async()=>{
         try{
         
-            const response = await axios.post(`http://localhost:3000/users/posts/${idPosteo}/like`,{ 
-                id: idPosteo
-            });
+            const token = localStorage.getItem('token');
+
+            const response = await axios.post(`http://localhost:3000/users/posts/${idPosteo}/like`,{},
+                {
+                    headers:{
+                        Authorization: token
+                    }
+                }
+            );
 
 
         alert('El posteo ha sido likeado')
@@ -31,10 +34,5 @@ function Likear() {
     <Button variant= 'contained' onClick={postLike}>Likear</Button>
     </>
     )
-
-
-
 } 
-
-
 export default Likear 

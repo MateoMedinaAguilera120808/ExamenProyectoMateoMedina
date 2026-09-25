@@ -60,9 +60,11 @@ const registerUser = async (req, res) => {
         });
     }
 
-    const passwordHasheada = await bcrypt.hash(password, 10)
+
 
     try {
+        const passwordHasheada = await bcrypt.hash(password, 10)
+
         const user = await Users.create({
             firstName,
             lastName,
@@ -168,42 +170,58 @@ const borrarCuenta = async (req, res) => {
 const darLike = async (req, res) => {
     try {
         const { id } = req.params;
-        console.log("#################################################");
         
-        const idPosteo = 0;
+
+        var idPosteo;
+
         if (!id) {
-            res.status(404).json({ message: ' no has enviado datos' })
+            return res.status(404).json({ message: ' no has enviado datos' })
         }
 
+        var idPosteo = 0;
         for (var i = 0; i < posteos.length; i++) {
-            if (id == posteos[i]) {
-                idPosteo = id
+            if (id == posteos[i].id) {
+                idPosteo = posteos[i].id;
+                break;
             }
-            console.log('aun no lo encontro')
         }
 
-        const usuarioDelLike = await Users.findOne({
-            where: { id: req.user.id }
-        })
-
-        usuarioDelLike.push({
-            likedPosts: idPosteo
-        })
-
-        req.user = {
-            idPost: idPosteo
+        if (idPosteo === 0) {
+            return res.status(404).json({ message: 'El posteo no existe' });
         }
 
+        const usuarioDelLike = await Users.findByPk(req.user.id)
+
+        if (!usuarioDelLike) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+
+        
+        var likesDeUsuario = usuarioDelLike.likedPosts;
+
+        
+        if (!likesDeUsuario) {
+            likesDeUsuario = [];
+        }
+
+        // 3. CREAMOS UNA COPIA NUEVA para que Sequelize se de cuenta de que cambió
+        var nuevosLikes = [...likesDeUsuario];
+
+        // 4. Le agregamos el nuevo id a la copia
+        nuevosLikes.push(idPosteo);
+
+        // 5. Guardamos la COPIA NUEVA
+        await usuarioDelLike.update({
+            likedPosts: nuevosLikes
+        });
+        res.status(200).json({ message: 'se ha likado un post' })
 
     } catch (error) {
         console.log(error);
-
         res.status(500).json({ message: 'ha ocurrido un error dandole like' })
     }
-
-
 }
-
 
 
 

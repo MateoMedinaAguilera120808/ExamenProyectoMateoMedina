@@ -23,9 +23,10 @@ function Register(){
         console.log(response.data)
         alert('Usuario Registrado')
 
-        }catch (error) {
-        console.error("Error al registrarse:",  error.message);
-    }
+       } catch (error) {
+    console.error("Error al registrarse:", error.response?.data || error);
+    alert(error.response?.data?.message || "Error al registrarse");
+}
     };
 
     return(<>
